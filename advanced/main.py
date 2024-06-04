@@ -22,15 +22,28 @@ from streaming.base.format.mds.encodings import Encoding, _encodings
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import get_scheduler
+from huggingface_hub import PyTorchModelHubMixin
+from mmdit import MMDiT
 
 import wandb
 from mmdit import MMDiT_for_IN1K
 
 
-class RF(torch.nn.Module):
-    def __init__(self, model, ln=True):
+class RF(torch.nn.Module,
+         PyTorchModelHubMixin,
+         repo_url="https://github.com/cloneofsimo/minRF"
+         ):
+    def __init__(self,
+                 in_channels=4,
+                 out_channels=4,
+                 dim=2560,
+                 global_conddim=2560,
+                 n_layers=36,
+                 n_heads=8,
+                 cond_seq_dim=2048,
+                 ln=True):
         super().__init__()
-        self.model = model
+        self.model = MMDiT(in_channels,out_channels,dim,global_conddim,n_layers,n_heads,cond_seq_dim)
         self.ln = ln
         self.stratified = False
 
